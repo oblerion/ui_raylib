@@ -210,7 +210,7 @@ struct UI_EXPLORER UI_EXPLORER(int x,int y,Color color)
         x,y,true,color,
         UI_TEXTFIELD(x+30,y+10,UI_EXPLORER_START_PATH,20,color)
     };
-    uiexplorer.uibtn_icon_back = UI_BUTTON(x+560,y+10," < ",20,color);
+    uiexplorer.uibtn_icon_back = UI_BUTTON(x+570,y+10," < ",20,color);
     uiexplorer.barv = UI_SLIDEBAR_V(x,y,10);
     _UI_EXPLORER_scan(&uiexplorer,0);
     return uiexplorer;

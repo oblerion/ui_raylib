@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include "raylib.h"
 #include "kbd_layout.h"
-#include "math.h"
 #include <string.h>
 struct UI_BUTTON
 {
