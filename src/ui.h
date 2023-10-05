@@ -106,6 +106,6 @@ struct UI_FILEMANAGER
     
     bool visible;
 };
-struct UI_FILEMANAGER UI_FILE_MANAGER(int x,int y,Color color);
-void UI_FILE_MANAGER_draw(struct UI_FILEMANAGER* uifilemanager);
+struct UI_FILEMANAGER UI_FILEMANAGER(int x,int y,Color color);
+void UI_FILEMANAGER_draw(struct UI_FILEMANAGER* uifilemanager);
 #endif
