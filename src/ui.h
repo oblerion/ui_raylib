@@ -123,5 +123,6 @@ struct UI_FILEIO
     bool visible;
 };
 struct UI_FILEIO UI_FILEIO(int x,int y,Color color);
-void UI_FILEIO_draw(struct UI_FILEIO* uifilemanager);
+char* UI_FILEIO_getFullPath(struct UI_FILEIO* uifileio);
+void UI_FILEIO_draw(struct UI_FILEIO* uifileio);
 #endif

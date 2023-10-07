@@ -320,6 +320,11 @@ struct UI_FILEIO UI_FILEIO(int x,int y ,Color color)
     return uifilemanager;
 }
 
+char* UI_FILEIO_getFullPath(struct UI_FILEIO* uifileio)
+{
+    return uifileio->io_path;
+}
+
 void UI_FILEIO_draw(struct UI_FILEIO *uifilemanager)
 {
     if(uifilemanager->visible)
