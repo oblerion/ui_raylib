@@ -65,6 +65,52 @@ void UI_TEXTFIELD_draw(struct UI_TEXTFIELD* uitextfield)
     }
 }
 
+struct UI_TEXTZONE UI_TEXTZONE(int x,int y,int size_font,Color color)
+{
+    struct UI_TEXTZONE textzone = {x,y,0,0,size_font,NULL,color,true};
+    return textzone;
+}
+void UI_TEXTZONE_cpy(struct UI_TEXTZONE* textzone,char* text)
+{
+    textzone->text = (char*)MemRealloc(textzone->text,strlen(text));
+    strcpy(textzone->text,text);
+}
+void UI_TEXTZONE_cat(struct UI_TEXTZONE* textzone,char* text)
+{
+    if(textzone->text!=NULL)
+    {
+        const int size = strlen(textzone->text);
+        char cpytext[size];
+        strcpy(cpytext,textzone->text);
+        textzone->text = (char*)MemRealloc(textzone->text,size+strlen(text));
+        sprintf(textzone->text,"%s%s",cpytext,text);
+    }
+    else
+    {
+        textzone->text = (char*)MemAlloc(strlen(text));
+        strcpy(textzone->text,text);
+    }
+}
+void UI_TEXTZONE_draw(struct UI_TEXTZONE* textzone)
+{
+    if(textzone->visible)
+    {
+        if(textzone->text!=NULL)
+        {
+            if(strlen(textzone->text)<UI_TEXTZONE_MAXCAR)
+                DrawText(textzone->text,textzone->x,textzone->y,textzone->size_font,textzone->color);
+            else
+            {
+                const char* cstr = TextSubtext(textzone->text,
+                            strlen(textzone->text)-UI_TEXTZONE_MAXCAR,
+                            strlen(textzone->text)-(strlen(textzone->text)-UI_TEXTZONE_MAXCAR));
+                DrawText(cstr,textzone->x,textzone->y,textzone->size_font,textzone->color);
+            }
+        }
+    }
+}
+
+
 struct UI_TEXTINPUT UI_TEXTINPUT(int x, int y, char *text, int size_font, Color color)
 {
     struct UI_TEXTINPUT uitextinput={
@@ -208,8 +254,10 @@ struct UI_EXPLORER UI_EXPLORER(int x,int y,Color color)
 {
     struct UI_EXPLORER uiexplorer={
         x,y,true,color,
-        UI_TEXTFIELD(x+30,y+10,UI_EXPLORER_START_PATH,20,color)
+        UI_TEXTZONE(x+30,y+10,20,color),
+        UI_TEXTFIELD(x+30,y-13,"Path",20,color)
     };
+    UI_TEXTZONE_cpy(&uiexplorer.path,UI_EXPLORER_START_PATH);
     uiexplorer.uibtn_icon_back = UI_BUTTON(x+570,y+10," < ",20,color);
     uiexplorer.barv = UI_SLIDEBAR_V(x,y,10);
     _UI_EXPLORER_scan(&uiexplorer,0);
@@ -222,7 +270,8 @@ void UI_EXPLORER_draw(struct UI_EXPLORER* uiexp)
     {
         DrawRectangleLines(uiexp->x+28,uiexp->y+8,530,24,uiexp->color);
         DrawRectangleLines(uiexp->x+28,uiexp->y+42,530,500,uiexp->color);
-        UI_TEXTFIELD_draw(&uiexp->path);
+        UI_TEXTFIELD_draw(&uiexp->text_path);
+        UI_TEXTZONE_draw(&uiexp->path);
         if(UI_SLIDEBAR_V_draw(&uiexp->barv))
         {
             _UI_EXPLORER_scan(uiexp,uiexp->barv.pos);
@@ -247,7 +296,7 @@ void UI_EXPLORER_draw(struct UI_EXPLORER* uiexp)
             {
                 if(DirectoryExists(TextFormat("%s%c%s",uiexp->path.text,'/',uiexp->files[i].name)))
                 {
-                    sprintf(uiexp->path.text,"%s%c%s",uiexp->path.text,'/',uiexp->files[i].name);
+                    UI_TEXTZONE_cat(&uiexp->path,TextFormat("%c%s",'/',uiexp->files[i].name));
                     _UI_EXPLORER_scan(uiexp,0);
                 }
             }
@@ -255,25 +304,27 @@ void UI_EXPLORER_draw(struct UI_EXPLORER* uiexp)
     }
 }
 
-struct UI_FILEMANAGER UI_FILEMANAGER(int x,int y ,Color color)
+struct UI_FILEIO UI_FILEIO(int x,int y ,Color color)
 {
-    struct UI_FILEMANAGER uifilemanager={x,y,500,500,color};
+    struct UI_FILEIO uifilemanager={x,y,970,580,color};
     uifilemanager.visible=true;
-    uifilemanager.uitext_path = UI_TEXTFIELD(x+10,y+15,"file path",20,color);
-    uifilemanager.uitext_filename = UI_TEXTFIELD(x+10,y+370,"file name",20,color);
-    uifilemanager.uiinput_path = UI_TEXTINPUT(x+5,y+45,"...",20,color);
-    uifilemanager.uiinput_filename = UI_TEXTINPUT(x+10,y+400,"input",20,color);
-    uifilemanager.uibtn_icon_quit = UI_BUTTON(x+475,y+10,"x",20,color);
-    uifilemanager.uibtn_icon_back = UI_BUTTON(x+450,y+45," < ",20,color);
-    uifilemanager.uibtn_back = UI_BUTTON(x+420,y+460,"cancel",20,color);
-    uifilemanager.uibtn_enter = UI_BUTTON(x+420,y+430,"select",20,color);
+    uifilemanager.uiexplorer = UI_EXPLORER(x,y+25,color);
+
+    uifilemanager.uitext_filename = UI_TEXTFIELD(x+610,y+8,"file name",20,color);
+    uifilemanager.uiinput_filename = UI_TEXTINPUT(x+610,y+35,"input",20,color);
+    uifilemanager.uibtn_icon_quit = UI_BUTTON(x+945,y+5,"x",20,color);
+    
+    uifilemanager.uibtn_back = UI_BUTTON(x+875,y+550,"cancel",20,color);
+    uifilemanager.uibtn_enter = UI_BUTTON(x+875,y+520,"select",20,color);
+    uifilemanager.io_path = NULL;
     return uifilemanager;
 }
 
-void UI_FILEMANAGER_draw(struct UI_FILEMANAGER *uifilemanager)
+void UI_FILEIO_draw(struct UI_FILEIO *uifilemanager)
 {
     if(uifilemanager->visible)
     {
+        UI_EXPLORER_draw(&uifilemanager->uiexplorer);
         DrawRectangleLines(
             uifilemanager->x,
             uifilemanager->y,
@@ -286,19 +337,17 @@ void UI_FILEMANAGER_draw(struct UI_FILEMANAGER *uifilemanager)
         }
         if(UI_BUTTON_draw(&uifilemanager->uibtn_enter))
         {
-
-        }
-        if(UI_BUTTON_draw(&uifilemanager->uibtn_icon_back))
-        {
-
+            const int size = strlen(uifilemanager->uiexplorer.path.text) + strlen(uifilemanager->uiinput_filename.text);
+            char lstr[size];
+            strcpy(lstr,TextFormat("%s/%s",uifilemanager->uiexplorer.path.text,uifilemanager->uiinput_filename.text));
+            uifilemanager->io_path = (char*)MemRealloc(uifilemanager->io_path,size);
+            strcpy(uifilemanager->io_path,lstr);
         }
         if(UI_BUTTON_draw(&uifilemanager->uibtn_icon_quit))
         {
             uifilemanager->visible=false;
         }
-        UI_TEXTINPUT_draw(&uifilemanager->uiinput_path,FR_BEL_VAR);
         UI_TEXTINPUT_draw(&uifilemanager->uiinput_filename,FR_BEL_VAR);
         UI_TEXTFIELD_draw(&uifilemanager->uitext_filename);
-        UI_TEXTFIELD_draw(&uifilemanager->uitext_path);
     }
 }

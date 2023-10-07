@@ -26,13 +26,30 @@ struct UI_TEXTFIELD
     int width;
     int height;
     int size_font;
-    char text[100];
+    char text[50];
     Color color;
 
     bool visible;
 };
 struct UI_TEXTFIELD UI_TEXTFIELD(int x,int y,char* text,int size_font,Color color);
 void UI_TEXTFIELD_draw(struct UI_TEXTFIELD* uitextfield);
+
+#define UI_TEXTZONE_MAXCAR 35
+struct UI_TEXTZONE
+{
+    int x;
+    int y;
+    int width;
+    int height;
+    int size_font;
+    char* text;
+    Color color;
+    bool visible;
+};
+struct UI_TEXTZONE UI_TEXTZONE(int x,int y,int size_font,Color color);
+void UI_TEXTZONE_cpy(struct UI_TEXTZONE* textzone,char* text);
+void UI_TEXTZONE_cat(struct UI_TEXTZONE* textzone,char* text);
+void UI_TEXTZONE_draw(struct UI_TEXTZONE* textzone);
 
 struct UI_TEXTINPUT
 {
@@ -77,7 +94,8 @@ struct UI_EXPLORER
     int y;
     bool visible;
     Color color;
-    struct UI_TEXTFIELD path;
+    struct UI_TEXTZONE path;
+    struct UI_TEXTFIELD text_path;
     struct UI_SLIDEBAR_V barv;
     struct UI_BUTTON files[UI_EXPLORER_MAX_FILE];
     struct UI_BUTTON uibtn_icon_back;
@@ -85,7 +103,7 @@ struct UI_EXPLORER
 struct UI_EXPLORER UI_EXPLORER(int x,int y,Color color);
 void UI_EXPLORER_draw(struct UI_EXPLORER* uiexp);
 
-struct UI_FILEMANAGER
+struct UI_FILEIO
 {
     int x;
     int y;
@@ -93,18 +111,17 @@ struct UI_FILEMANAGER
     int height;
     Color color;
 
-    struct UI_TEXTFIELD uitext_path;
-    struct UI_TEXTINPUT uiinput_path;
-   
+    struct UI_EXPLORER uiexplorer;
     struct UI_BUTTON uibtn_icon_quit;
-    struct UI_BUTTON uibtn_icon_back;
+  
     struct UI_BUTTON uibtn_back;
     struct UI_BUTTON uibtn_enter;
     struct UI_TEXTFIELD uitext_filename;
     struct UI_TEXTINPUT uiinput_filename;
-    
+
+    char* io_path;
     bool visible;
 };
-struct UI_FILEMANAGER UI_FILEMANAGER(int x,int y,Color color);
-void UI_FILEMANAGER_draw(struct UI_FILEMANAGER* uifilemanager);
+struct UI_FILEIO UI_FILEIO(int x,int y,Color color);
+void UI_FILEIO_draw(struct UI_FILEIO* uifilemanager);
 #endif

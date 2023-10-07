@@ -10,8 +10,8 @@ int main(void)
     const int screenHeight = 600;//GetMonitorHeight(0);
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
     //struct UI_TEXT_FIELD uitf = UI_TEXT_FIELD(23,23,"eeee",25,BLACK);
-    //struct UI_FILE_MANAGER uifilemanager = UI_FILE_MANAGER(23,23,BLACK);
-    struct UI_EXPLORER uiexp = UI_EXPLORER(23,23,BLACK);
+    struct UI_FILEMANAGER uifilemanager = UI_FILEMANAGER(3,3,BLACK);
+
     SetTargetFPS(60);   // Set our game to run at 60 frames-per-second
     //Font f = LoadFont(".ttf");
    
@@ -22,9 +22,8 @@ int main(void)
         BeginDrawing();
         ClearBackground(BLUE);
         //UI_TEXT_FIELD_draw(&uitf);
-        //UI_FILE_MANAGER_draw(&uifilemanager);
-        UI_EXPLORER_draw(&uiexp);
-   
+        UI_FILEMANAGER_draw(&uifilemanager);
+        //UI_EXPLORER_draw(&uiexp);
         EndDrawing();
     }
    // UnloadModel(model);
