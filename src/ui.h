@@ -124,5 +124,5 @@ struct UI_FILEIO
 };
 struct UI_FILEIO UI_FILEIO(int x,int y,Color color);
 char* UI_FILEIO_getFullPath(struct UI_FILEIO* uifileio);
-void UI_FILEIO_draw(struct UI_FILEIO* uifileio);
+void UI_FILEIO_draw(struct UI_FILEIO* uifileio,KBD_Layout layout);
 #endif

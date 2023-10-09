@@ -22,7 +22,7 @@ int main(void)
         BeginDrawing();
         ClearBackground(BLUE);
         //UI_TEXT_FIELD_draw(&uitf);
-        UI_FILEIO_draw(&uifilemanager);
+        UI_FILEIO_draw(&uifilemanager,FR_BEL_VAR);
         //UI_EXPLORER_draw(&uiexp);
         EndDrawing();
     }

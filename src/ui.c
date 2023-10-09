@@ -325,10 +325,27 @@ char* UI_FILEIO_getFullPath(struct UI_FILEIO* uifileio)
     return uifileio->io_path;
 }
 
-void UI_FILEIO_draw(struct UI_FILEIO *uifilemanager)
+void UI_FILEIO_draw(struct UI_FILEIO *uifilemanager,KBD_Layout layout)
 {
     if(uifilemanager->visible)
     {
+        if(IsFileDropped())
+        {
+            FilePathList files = LoadDroppedFiles();
+            if(files.count>0)
+            {
+                const char* file = GetFileName(files.paths[0]);
+                if(IsPathFile(files.paths[0]))
+                    strcpy(uifilemanager->uiinput_filename.text,file);
+                else
+                    strcpy(uifilemanager->uiinput_filename.text,"");
+                const char* path = TextSubtext(files.paths[0],0,strlen(files.paths[0])-strlen(file)-1);
+                UI_TEXTZONE_cpy(&uifilemanager->uiexplorer.path,path);
+                _UI_EXPLORER_scan(&uifilemanager->uiexplorer,0);
+            }
+            UnloadDroppedFiles(files);
+        }
+
         UI_EXPLORER_draw(&uifilemanager->uiexplorer);
         DrawRectangleLines(
             uifilemanager->x,
@@ -352,7 +369,7 @@ void UI_FILEIO_draw(struct UI_FILEIO *uifilemanager)
         {
             uifilemanager->visible=false;
         }
-        UI_TEXTINPUT_draw(&uifilemanager->uiinput_filename,FR_BEL_VAR);
+        UI_TEXTINPUT_draw(&uifilemanager->uiinput_filename,layout);
         UI_TEXTFIELD_draw(&uifilemanager->uitext_filename);
     }
 }
