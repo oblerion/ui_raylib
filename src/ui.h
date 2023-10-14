@@ -47,10 +47,10 @@ struct UI_TEXTZONE
     bool visible;
 };
 struct UI_TEXTZONE UI_TEXTZONE(int x,int y,int size_font,Color color);
-void UI_TEXTZONE_cpy(struct UI_TEXTZONE* textzone,char* text);
-void UI_TEXTZONE_cat(struct UI_TEXTZONE* textzone,char* text);
+void UI_TEXTZONE_cpy(struct UI_TEXTZONE* textzone,const char* text);
+void UI_TEXTZONE_cat(struct UI_TEXTZONE* textzone,const char* text);
 void UI_TEXTZONE_draw(struct UI_TEXTZONE* textzone);
-
+void UI_TEXTZONE_free(struct UI_TEXTZONE* textzone);
 struct UI_TEXTINPUT
 {
     int x;
@@ -102,6 +102,7 @@ struct UI_EXPLORER
 };
 struct UI_EXPLORER UI_EXPLORER(int x,int y,Color color);
 void UI_EXPLORER_draw(struct UI_EXPLORER* uiexp);
+void UI_EXPLORER_free(struct UI_EXPLORER* uiexp);
 
 struct UI_FILEIO
 {
@@ -125,4 +126,6 @@ struct UI_FILEIO
 struct UI_FILEIO UI_FILEIO(int x,int y,Color color);
 char* UI_FILEIO_getFullPath(struct UI_FILEIO* uifileio);
 void UI_FILEIO_draw(struct UI_FILEIO* uifileio,KBD_Layout layout);
+void UI_FILEIO_free(struct UI_FILEIO* uifileio);
+
 #endif

@@ -70,12 +70,12 @@ struct UI_TEXTZONE UI_TEXTZONE(int x,int y,int size_font,Color color)
     struct UI_TEXTZONE textzone = {x,y,0,0,size_font,NULL,color,true};
     return textzone;
 }
-void UI_TEXTZONE_cpy(struct UI_TEXTZONE* textzone,char* text)
+void UI_TEXTZONE_cpy(struct UI_TEXTZONE* textzone,const char* text)
 {
     textzone->text = (char*)MemRealloc(textzone->text,strlen(text));
     strcpy(textzone->text,text);
 }
-void UI_TEXTZONE_cat(struct UI_TEXTZONE* textzone,char* text)
+void UI_TEXTZONE_cat(struct UI_TEXTZONE* textzone,const char* text)
 {
     if(textzone->text!=NULL)
     {
@@ -109,7 +109,10 @@ void UI_TEXTZONE_draw(struct UI_TEXTZONE* textzone)
         }
     }
 }
-
+void UI_TEXTZONE_free(struct UI_TEXTZONE* textzone)
+{
+    MemFree(textzone->text);
+}
 
 struct UI_TEXTINPUT UI_TEXTINPUT(int x, int y, char *text, int size_font, Color color)
 {
@@ -303,6 +306,10 @@ void UI_EXPLORER_draw(struct UI_EXPLORER* uiexp)
         }
     }
 }
+void UI_EXPLORER_free(struct UI_EXPLORER* uiexp)
+{
+    UI_TEXTZONE_free(&uiexp->path);
+}
 
 struct UI_FILEIO UI_FILEIO(int x,int y ,Color color)
 {
@@ -372,4 +379,8 @@ void UI_FILEIO_draw(struct UI_FILEIO *uifilemanager,KBD_Layout layout)
         UI_TEXTINPUT_draw(&uifilemanager->uiinput_filename,layout);
         UI_TEXTFIELD_draw(&uifilemanager->uitext_filename);
     }
+}
+void UI_FILEIO_free(struct UI_FILEIO* uifileio)
+{
+    UI_EXPLORER_free(&uifileio->uiexplorer);
 }

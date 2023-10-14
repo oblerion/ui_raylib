@@ -28,6 +28,7 @@ int main(void)
     }
    // UnloadModel(model);
     CloseWindow();        // Close window and OpenGL
+    UI_FILEIO_free(&uifilemanager);
     return 0;
 }
 
