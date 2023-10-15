@@ -1,6 +1,7 @@
 #ifndef UI_H
 #define UI_H
 #include <stdio.h>
+#include <stdlib.h>
 #include "raylib.h"
 #include "kbd_layout.h"
 #include <string.h>
@@ -51,6 +52,7 @@ void UI_TEXTZONE_cpy(struct UI_TEXTZONE* textzone,const char* text);
 void UI_TEXTZONE_cat(struct UI_TEXTZONE* textzone,const char* text);
 void UI_TEXTZONE_draw(struct UI_TEXTZONE* textzone);
 void UI_TEXTZONE_free(struct UI_TEXTZONE* textzone);
+#define UI_TEXTINPUT_MAXCHAR 25
 struct UI_TEXTINPUT
 {
     int x;
@@ -59,7 +61,7 @@ struct UI_TEXTINPUT
     int height;
     int pos_cursor;
     int size_font;
-    char text[50];
+    char* text;
     Color color;
 
     bool visible;
@@ -67,7 +69,7 @@ struct UI_TEXTINPUT
 };
 struct UI_TEXTINPUT UI_TEXTINPUT(int x,int y,char* text,int size_font,Color color);
 void UI_TEXTINPUT_draw(struct UI_TEXTINPUT* uitextinput,KBD_Layout layout);
-
+void UI_TEXTINPUT_free(struct UI_TEXTINPUT* uitextinput);
 struct UI_SLIDEBAR_V
 {
     int x;
@@ -125,7 +127,7 @@ struct UI_FILEIO
 };
 struct UI_FILEIO UI_FILEIO(int x,int y,Color color);
 char* UI_FILEIO_getFullPath(struct UI_FILEIO* uifileio);
-void UI_FILEIO_draw(struct UI_FILEIO* uifileio,KBD_Layout layout);
+int UI_FILEIO_draw(struct UI_FILEIO* uifileio,KBD_Layout layout);
 void UI_FILEIO_free(struct UI_FILEIO* uifileio);
 
 #endif

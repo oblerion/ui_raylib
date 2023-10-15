@@ -72,7 +72,7 @@ struct UI_TEXTZONE UI_TEXTZONE(int x,int y,int size_font,Color color)
 }
 void UI_TEXTZONE_cpy(struct UI_TEXTZONE* textzone,const char* text)
 {
-    textzone->text = (char*)MemRealloc(textzone->text,strlen(text));
+    textzone->text = (char*)realloc(textzone->text,strlen(text));
     strcpy(textzone->text,text);
 }
 void UI_TEXTZONE_cat(struct UI_TEXTZONE* textzone,const char* text)
@@ -82,12 +82,12 @@ void UI_TEXTZONE_cat(struct UI_TEXTZONE* textzone,const char* text)
         const int size = strlen(textzone->text);
         char cpytext[size];
         strcpy(cpytext,textzone->text);
-        textzone->text = (char*)MemRealloc(textzone->text,size+strlen(text));
+        textzone->text = (char*)realloc(textzone->text,size+strlen(text));
         sprintf(textzone->text,"%s%s",cpytext,text);
     }
     else
     {
-        textzone->text = (char*)MemAlloc(strlen(text));
+        textzone->text = (char*)malloc(strlen(text));
         strcpy(textzone->text,text);
     }
 }
@@ -111,7 +111,7 @@ void UI_TEXTZONE_draw(struct UI_TEXTZONE* textzone)
 }
 void UI_TEXTZONE_free(struct UI_TEXTZONE* textzone)
 {
-    MemFree(textzone->text);
+    free(textzone->text);
 }
 
 struct UI_TEXTINPUT UI_TEXTINPUT(int x, int y, char *text, int size_font, Color color)
@@ -119,9 +119,13 @@ struct UI_TEXTINPUT UI_TEXTINPUT(int x, int y, char *text, int size_font, Color 
     struct UI_TEXTINPUT uitextinput={
         x,y,0,0,0,size_font,{0},color,true
     };
+    uitextinput.text = (char*)malloc(UI_TEXTINPUT_MAXCHAR);
     strcpy(uitextinput.text,text);
-    uitextinput.width = (MeasureText("mmmmmmmmmmmmmmmmmmmmmmmmm",size_font))+8;
+    uitextinput.width = (MeasureText("M",size_font)*25)+8;
     uitextinput.height = size_font+8;
+
+    uitextinput.active=false;
+    uitextinput.visible=true;
 
     return uitextinput;
 }
@@ -130,6 +134,7 @@ void UI_TEXTINPUT_draw(struct UI_TEXTINPUT *uitextinput,KBD_Layout layout)
 {
     if(uitextinput->active)
     {
+        // get key
         int key = Kbd_GetKeyPressed(layout);
         if( key != KEY_LEFT_SHIFT &&
             key != KEY_RIGHT_SHIFT &&
@@ -138,10 +143,17 @@ void UI_TEXTINPUT_draw(struct UI_TEXTINPUT *uitextinput,KBD_Layout layout)
             key != KEY_LEFT_CONTROL && 
             key != KEY_RIGHT_CONTROL &&
             key != KEY_BACKSPACE &&
+            key != KEY_LEFT &&
+            key != KEY_RIGHT &&
+            key != KEY_UP &&
+            key != KEY_DOWN &&
             key != 0)
         {
-            if(strlen(uitextinput->text)<25)
-                strcat(uitextinput->text,TextFormat("%c",key));
+            const char cstr[strlen(uitextinput->text)];
+            strcpy(cstr,uitextinput->text);
+
+            uitextinput->text = (char*)realloc(uitextinput->text,strlen(cstr)+1);
+            strcpy(uitextinput->text,TextFormat("%s%c",cstr,key));
         }
         else if(key == KEY_BACKSPACE)
         {
@@ -152,25 +164,46 @@ void UI_TEXTINPUT_draw(struct UI_TEXTINPUT *uitextinput,KBD_Layout layout)
                 uitextinput->text[size] = 0;
             }
         }
+        DrawRectangleLines(uitextinput->x-6,uitextinput->y-6,uitextinput->width+4,uitextinput->height+4,uitextinput->color);
+    }
+
+    // mouse event
+    if(MATH_collide(GetMouseX(),GetMouseY(),10,10,
+        uitextinput->x-4,uitextinput->y-4,uitextinput->width,uitextinput->height)==1)
+    {
+        uitextinput->color.a = 50;
+        if(IsMouseButtonPressed(0)) uitextinput->active = !uitextinput->active;
+    }
+    else
+    {
+        uitextinput->color.a = 255;
+        if(IsMouseButtonPressed(0)) uitextinput->active=false;
     }
     if(uitextinput->visible)
     {
-        Color lcol = uitextinput->color;
-        if(MATH_collide(GetMouseX(),GetMouseY(),10,10,
-            uitextinput->x-4,uitextinput->y-4,uitextinput->width,uitextinput->height)==1)
+        DrawRectangleLines(uitextinput->x-4,uitextinput->y-4,uitextinput->width,uitextinput->height,uitextinput->color);
+        if(strlen(uitextinput->text)<UI_TEXTINPUT_MAXCHAR)
         {
-            lcol.a = 50;
-            if(IsMouseButtonPressed(0)) uitextinput->active = !uitextinput->active;
+            DrawText(uitextinput->text,uitextinput->x,uitextinput->y,uitextinput->size_font,uitextinput->color);
         }
         else
         {
-            if(IsMouseButtonPressed(0)) uitextinput->active=false;
+            const int size = strlen(uitextinput->text);
+            const int offset = size-UI_TEXTINPUT_MAXCHAR;
+            const int next_size = size-offset;
+            char cstr[next_size];
+            for(int i=0;i<next_size;i++)
+            {
+                cstr[i] = uitextinput->text[i+offset];
+            }
+            cstr[next_size] = '\0';
+            DrawText(cstr,uitextinput->x,uitextinput->y,uitextinput->size_font,uitextinput->color);
         }
-        DrawRectangleLines(uitextinput->x-4,uitextinput->y-4,uitextinput->width,uitextinput->height,lcol);
-        if(uitextinput->active==true) 
-            DrawRectangleLines(uitextinput->x-6,uitextinput->y-6,uitextinput->width+4,uitextinput->height+4,lcol);
-        DrawText(uitextinput->text,uitextinput->x,uitextinput->y,uitextinput->size_font,lcol);
     }
+}
+void UI_TEXTINPUT_free(struct UI_TEXTINPUT* uitextinput)
+{
+    free(uitextinput->text);
 }
 struct UI_SLIDEBAR_V UI_SLIDEBAR_V(int x,int y,int pos_max)
 {
@@ -332,7 +365,7 @@ char* UI_FILEIO_getFullPath(struct UI_FILEIO* uifileio)
     return uifileio->io_path;
 }
 
-void UI_FILEIO_draw(struct UI_FILEIO *uifilemanager,KBD_Layout layout)
+int UI_FILEIO_draw(struct UI_FILEIO *uifilemanager,KBD_Layout layout)
 {
     if(uifilemanager->visible)
     {
@@ -369,8 +402,9 @@ void UI_FILEIO_draw(struct UI_FILEIO *uifilemanager,KBD_Layout layout)
             const int size = strlen(uifilemanager->uiexplorer.path.text) + strlen(uifilemanager->uiinput_filename.text);
             char lstr[size];
             strcpy(lstr,TextFormat("%s/%s",uifilemanager->uiexplorer.path.text,uifilemanager->uiinput_filename.text));
-            uifilemanager->io_path = (char*)MemRealloc(uifilemanager->io_path,size);
+            uifilemanager->io_path = (char*)realloc(uifilemanager->io_path,size);
             strcpy(uifilemanager->io_path,lstr);
+            return 1;
         }
         if(UI_BUTTON_draw(&uifilemanager->uibtn_icon_quit))
         {
@@ -379,6 +413,7 @@ void UI_FILEIO_draw(struct UI_FILEIO *uifilemanager,KBD_Layout layout)
         UI_TEXTINPUT_draw(&uifilemanager->uiinput_filename,layout);
         UI_TEXTFIELD_draw(&uifilemanager->uitext_filename);
     }
+    return 0;
 }
 void UI_FILEIO_free(struct UI_FILEIO* uifileio)
 {
