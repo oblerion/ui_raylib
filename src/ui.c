@@ -367,6 +367,7 @@ char* UI_FILEIO_getFullPath(struct UI_FILEIO* uifileio)
 
 int UI_FILEIO_draw(struct UI_FILEIO *uifilemanager,KBD_Layout layout)
 {
+    int ret = 0;
     if(uifilemanager->visible)
     {
         if(IsFileDropped())
@@ -404,7 +405,7 @@ int UI_FILEIO_draw(struct UI_FILEIO *uifilemanager,KBD_Layout layout)
             strcpy(lstr,TextFormat("%s/%s",uifilemanager->uiexplorer.path.text,uifilemanager->uiinput_filename.text));
             uifilemanager->io_path = (char*)realloc(uifilemanager->io_path,size);
             strcpy(uifilemanager->io_path,lstr);
-            return 1;
+            ret=1;
         }
         if(UI_BUTTON_draw(&uifilemanager->uibtn_icon_quit))
         {
@@ -413,7 +414,7 @@ int UI_FILEIO_draw(struct UI_FILEIO *uifilemanager,KBD_Layout layout)
         UI_TEXTINPUT_draw(&uifilemanager->uiinput_filename,layout);
         UI_TEXTFIELD_draw(&uifilemanager->uitext_filename);
     }
-    return 0;
+    return ret;
 }
 void UI_FILEIO_free(struct UI_FILEIO* uifileio)
 {
