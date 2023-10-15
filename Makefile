@@ -1,6 +1,6 @@
 #! /bin/bash
 
-CC=clang
+CC=gcc
 DSRC=src
 DOBJ=build/linux64/obj
 DEXEC=build/linux64
